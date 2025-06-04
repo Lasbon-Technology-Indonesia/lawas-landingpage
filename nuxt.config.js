@@ -1,4 +1,12 @@
 export default defineNuxtConfig({
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/logo-lawas.png' }
+      ]
+    },
+  },
+
   // Global CSS
   css: [
     '@/assets/css/main.css'
