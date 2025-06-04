@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+:root {
+  --color-primary: #00c2b3;
+  --color-secondary: #3498db;
+  --color-dark: #0f172a;
+  --color-dark-lighter: #1e293b;
+  --color-light: #f8fafc;
+  --color-light-darker: #e2e8f0;
+}
+
+@layer components {
+  .light {
+    --bg-main: var(--color-light);
+    --bg-card: var(--color-light-darker);
+    --text-main: #1e293b;
+    --text-secondary: #475569;
+  }
+  
+  .dark {
+    --bg-main: var(--color-dark);
+    --bg-card: var(--color-dark-lighter);
+    --text-main: #ffffff;
+    --text-secondary: #9ca3af;
+  }
+
+  body {
+    @apply bg-dark text-white transition-colors duration-300;
+  }
+
+  body.light-mode {
+    @apply bg-light text-gray-800;
+  }
+
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary;
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-white font-medium rounded-md px-4 py-2 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-md px-4 py-2 transition-colors;
+  }
+
+  .card {
+    @apply bg-dark-lighter rounded-lg shadow-md p-6 transition-colors duration-300;
+  }
+
+  .light-mode .card {
+    @apply bg-light-darker;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-gray-400 text-lg max-w-2xl mx-auto;
+  }
+  
+  .light-mode .section-subtitle {
+    @apply text-gray-600;
+  }
+  
+  .copy-button {
+    @apply bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-md transition-colors;
+  }
+  
+  .light-mode .copy-button {
+    @apply bg-gray-300 hover:bg-gray-400 text-gray-800;
+  }
+  
+  .notification {
+    @apply fixed top-4 right-4 bg-primary text-white p-4 rounded-md shadow-lg transform transition-transform duration-300 z-50;
+  }
+  
+  .notification-enter {
+    @apply translate-x-full;
+  }
+  
+  .notification-enter-active {
+    @apply translate-x-0;
+  }
+  
+  .notification-exit {
+    @apply translate-x-0;
+  }
+  
+  .notification-exit-active {
+    @apply translate-x-full;
+  }
+  
+  .language-switcher {
+    @apply relative;
+  }
+  
+  .language-menu {
+    @apply absolute right-0 mt-2 w-40 bg-dark-lighter rounded-md shadow-lg overflow-hidden z-10 transform transition-all duration-200 ease-in-out;
+  }
+  
+  .light-mode .language-menu {
+    @apply bg-light-darker;
+  }
+  
+  .language-option {
+    @apply px-4 py-2 text-sm hover:bg-gray-700 cursor-pointer transition-colors;
+  }
+  
+  .light-mode .language-option {
+    @apply hover:bg-gray-300;
+  }
+}
+
+/* Animation */
+.animate-pulse-slow {
+  animation: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Mobile menu animation */
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Particle animation */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float 15s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-15px);
+  }
+  75% {
+    transform: translateY(15px) translateX(5px);
+  }
+}
+
+/* Logo animation */
+.logo-pulse {
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Hover effects */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  z-index: 10;
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #1f2937;
+  transform: rotate(45deg);
+}
+
+.has-tooltip:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.light-mode .tooltip {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.light-mode .tooltip-arrow {
+  background-color: #e5e7eb;
+}
