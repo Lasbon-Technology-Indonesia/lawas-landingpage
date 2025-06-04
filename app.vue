@@ -2,6 +2,8 @@
   <div>
     <div class="min-h-screen">
       <header class="container mx-auto px-4 py-4">
+        <link rel="icon" type="image/png" href="/logo.png" />
+
         <!-- Mobile menu (hidden on desktop) -->
         <div class="md:hidden">
           <div class="flex items-center justify-between">
@@ -44,7 +46,7 @@
             <a href="#how-to-buy" class="hover:text-primary transition-colors">How to Buy</a>
           </div>
           <div class="flex space-x-2 items-center">
-            <button class="btn-primary">XRPL Wallet</button>
+            <button class="btn-primary" @click="redirectToXPM">Get LAWAS</button>
           </div>
         </nav>
       </header>
@@ -95,13 +97,18 @@
 import { ref, onMounted } from 'vue'
 import EnhancedFooter from '~/components/EnhancedFooter.vue'
 
-// State
+/**
+ * * Variables
+ */
 const mobileMenuOpen = ref(false)
 const showNotification = ref(false)
 const notificationMessage = ref('')
 const particles = ref([])
 
-// Methods
+
+/**
+ * * Methods
+ */
 const showNotificationMessage = (message) => {
   notificationMessage.value = message
   showNotification.value = true
@@ -129,6 +136,14 @@ const generateParticles = () => {
   }
 }
 
+const redirectToXPM = () => {
+  window.open(`https://xpmarket.com/token/LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC`, '_blank').focus();
+}
+
+
+/**
+ * * Hooks
+ */
 // Lifecycle
 onMounted(() => {
   generateParticles()

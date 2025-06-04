@@ -12,6 +12,10 @@
   --color-light-darker: #e2e8f0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 @layer components {
   .light {
     --bg-main: var(--color-light);

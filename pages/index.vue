@@ -21,7 +21,7 @@
               The premier digital asset on the XRP Ledger, designed for institutional-grade security and seamless cross-border transactions.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button class="btn-primary text-lg px-8 py-3 hover-scale">Set Trustline</button>
+              <button class="btn-primary text-lg px-8 py-3 hover-scale" @click="redirectToXPM">Set Trustline</button>
               <button class="btn-secondary text-lg px-8 py-3 hover-scale">Learn More</button>
             </div>
           </div>
@@ -386,7 +386,9 @@ import { ref, onMounted, computed, watch } from 'vue'
 import PriceChart from '~/components/PriceChart.vue'
 import ContractAddress from '~/components/ContractAddress.vue'
 
-// Data
+/**
+ * * Variables
+ */
 const tokenData = ref({
   code: 'LAWAS',
   title: 'LAWAS',
@@ -404,7 +406,7 @@ const tokenData = ref({
 const chartData = ref([])
 const selectedPeriod = ref('1D')
 const selectedCurrency = ref('USD')
-const chartPeriods = ['1H', '1D', '1W', '1M', '1Y']
+const chartPeriods = ['1D', '1W', '1M', '1Y']
 const currencyRates = ref({})
 
 const ohlcData = ref({
@@ -473,7 +475,10 @@ const marketStats = computed(() => {
   ]
 })
 
-// Methods
+
+/**
+ * * Methods
+ */
 const formatNumber = (num) => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(2) + 'M'
@@ -552,8 +557,18 @@ const fetchCurrencyRates = async () => {
 }
 
 const setSelectedPeriod = (period) => {
+  
+  let param = period
+  if (period == '1W') {
+    param = '7d'
+  } else if (period == '1M') {
+    param = '30d'
+  } else if (period == '1Y') {
+    param = '365d'
+  }
   selectedPeriod.value = period
-  fetchChartData(period.toLowerCase())
+
+  fetchChartData(param.toLowerCase())
   showNotificationMessage(`Chart period changed to ${period}`)
 }
 
@@ -566,11 +581,23 @@ const showNotificationMessage = (message, isError = false) => {
   }
 }
 
+const redirectToXPM = () => {
+  window.open(`https://xpmarket.com/token/LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC`, '_blank').focus();
+}
+
+
+/**
+ * * Watchers
+ */
 // Watch for currency changes
 watch(selectedCurrency, (newCurrency) => {
   showNotificationMessage(`Currency changed to ${newCurrency}`)
 })
 
+
+/**
+ * * Hooks
+ */
 // Lifecycle
 onMounted(async () => {
   await fetchTokenData()
@@ -581,14 +608,7 @@ onMounted(async () => {
   setInterval(async () => {
     await fetchTokenData()
     await fetchChartData(selectedPeriod.value.toLowerCase())
-  }, 30000) // Update every 30 seconds
-  
-  // Listen for notification events from child components
-  if (typeof window !== 'undefined') {
-    window.addEventListener('notification', (event) => {
-      showNotificationMessage(event.detail.message, event.detail.isError)
-    })
-  }
+  }, 60000) // Update every 60 seconds
   
   // Animate numbers on load
   const animateNumbers = document.querySelectorAll('.animate-number')
