@@ -262,7 +262,76 @@
                 <span>Access to Premium Features</span>
               </div>
             </div>
+
             <button class="btn-primary w-full mt-6 hover-scale">Read Whitepaper</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to Buy Section -->
+    <section id="how-to-buy" class="py-20 bg-dark"> <!-- Using bg-dark, adjust if needed -->
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="section-title">
+            How to <span class="gradient-text">Buy</span>
+          </h2>
+          <p class="section-subtitle">
+            Follow these simple steps to buy LAWAS token on the XRP Ledger.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- Step 1: Create XRP Wallet -->
+          <div class="card hover-scale relative p-6">
+             <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">1</div>
+             <div class="flex justify-center mb-4 mt-4">
+                <!-- Wallet Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m12 0V6a3 3 0 00-3-3H9a3 3 0 00-3 3v3h12z" /></svg>
+             </div>
+            <h3 class="text-xl font-bold mb-3 text-center">Create XRP Wallet</h3>
+            <p class="text-gray-300 text-sm text-center">
+              Create an XRP Ledger wallet using XUMM, Sologenic, or any other XRPL-compatible wallet. Fund your wallet with a minimum of 10 XRP for account activation.
+            </p>
+          </div>
+
+          <!-- Step 2: Set Trustline -->
+          <div class="card hover-scale relative p-6">
+            <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">2</div>
+             <div class="flex justify-center mb-4 mt-4">
+                <!-- Trustline Icon -->
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+             </div>
+            <h3 class="text-xl font-bold mb-3 text-center">Set Trustline</h3>
+            <p class="text-gray-300 text-sm text-center">
+              Set a trustline to the LAWAS token issuer address. This allows your wallet to hold LAWAS tokens. Click the "Set Trustline" button on our website to do this easily.
+            </p>
+          </div>
+
+          <!-- Step 3: Buy on DEX -->
+          <div class="card hover-scale relative p-6">
+             <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">3</div>
+             <div class="flex justify-center mb-4 mt-4">
+                <!-- DEX Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+             </div>
+            <h3 class="text-xl font-bold mb-3 text-center">Buy on DEX</h3>
+            <p class="text-gray-300 text-sm text-center">
+              Use the XRP Ledger\'s built-in decentralized exchange (DEX) to swap XRP for LAWAS tokens. You can do this through your wallet app or through services like XPMarket.
+            </p>
+          </div>
+
+          <!-- Step 4: Store Securely -->
+          <div class="card hover-scale relative p-6">
+             <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">4</div>
+             <div class="flex justify-center mb-4 mt-4">
+                <!-- Secure Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+             </div>
+            <h3 class="text-xl font-bold mb-3 text-center">Store Securely</h3>
+            <p class="text-gray-300 text-sm text-center">
+              After purchasing, your LAWAS tokens will be stored in your XRP wallet. Make sure to keep your recovery phrase and private keys secure.
+            </p>
           </div>
         </div>
       </div>
