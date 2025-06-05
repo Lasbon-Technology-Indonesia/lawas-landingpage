@@ -3,6 +3,11 @@ export default defineNuxtConfig({
     head: {
       link: [
         { rel: 'icon', type: 'image/png', href: '/logo-lawas.png' }
+      ],
+      meta: [
+        { 'http-equiv': 'Cache-Control', content: 'no-cache, no-store, must-revalidate' },
+        { 'http-equiv': 'Pragma', content: 'no-cache' },
+        { 'http-equiv': 'Expires', content: '0' }
       ]
     },
   },
