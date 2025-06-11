@@ -27,14 +27,14 @@
           </div>
           
           <div class="flex justify-center lg:justify-end">
-            <div class="relative w-80 h-80">
+            <div class="relative w-128 h-128">
               <!-- Pulsing Gradient Background -->
               <div class="w-full h-full rounded-full bg-gradient-to-br from-primary to-secondary opacity-20 animate-pulse-slow"></div>
 
               <!-- White Transparent Inner Circle with Logo -->
               <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-60 h-60 rounded-full bg-white bg-opacity-10 flex items-center justify-center logo-pulse">
-                  <img src="/lawas-logo.png" alt="LAWAS Logo" class="w-40 h-40 object-contain" />
+                <div class="w-96 h-96 rounded-full bg-white bg-opacity-10 flex items-center justify-center logo-pulse">
+                  <img src="/lawas-logo.png" alt="LAWAS Logo" class="w-64 h-64 object-contain" />
                 </div>
               </div>
 
@@ -566,13 +566,13 @@ const marketStats = computed(() => {
  */
 const getDotStyle = (index) => {
   const angle = (index * 30) * (Math.PI / 180) // Convert to radians
-  const radius = 130 // Orbit radius in pixels
+  const radius_percentage = (208 / 256) * 50; // Calculate radius as percentage of container half-width/height
   const centerX = 50 // Center position (50% of container)
   const centerY = 50 // Center position (50% of container)
   
   // Calculate x and y positions using trigonometry
-  const x = centerX + (radius * Math.cos(angle)) / 3.2 // Adjust for percentage
-  const y = centerY + (radius * Math.sin(angle)) / 3.2 // Adjust for percentage
+  const x = centerX + (radius_percentage * Math.cos(angle))
+  const y = centerY + (radius_percentage * Math.sin(angle))
   
   return {
     position: 'absolute',
