@@ -46,8 +46,7 @@
 
               <!-- Orbiting dots -->
               <div
-                class="absolute inset-0 origin-center will-change-transform"
-                v-motion="orbitMotion"
+                class="absolute inset-0 origin-center will-change-transform animate-orbit-rotation"
               >
                 <div
                   v-for="i in 12"
@@ -565,25 +564,23 @@ const marketStats = computed(() => {
 /**
  * * Methods
  */
-const orbitMotion = ref({
-  initial: { rotate: 0 },
-  animate: {
-    rotate: 360,
-    transition: {
-      duration: 20,
-      repeat: Infinity,
-      ease: 'linear',
-    },
-  },
-});
-
 const getDotStyle = (index) => {
-  const angle = index * 30
+  const angle = (index * 30) * (Math.PI / 180) // Convert to radians
+  const radius = 130 // Orbit radius in pixels
+  const centerX = 50 // Center position (50% of container)
+  const centerY = 50 // Center position (50% of container)
+  
+  // Calculate x and y positions using trigonometry
+  const x = centerX + (radius * Math.cos(angle)) / 3.2 // Adjust for percentage
+  const y = centerY + (radius * Math.sin(angle)) / 3.2 // Adjust for percentage
+  
   return {
-    top: '50%',
-    left: '50%',
-    transform: `rotate(${angle}deg) translateY(-130px) translateX(-50%)`,
+    position: 'absolute',
+    left: `${x}%`,
+    top: `${y}%`,
+    transform: 'translate(-50%, -50%)',
     opacity: index % 2 === 0 ? 0.8 : 0.4,
+    animation: `orbitPulse ${2 + (index * 0.1)}s ease-in-out infinite`,
   }
 }
 
@@ -885,6 +882,32 @@ onMounted(async () => {
 }
 
 @keyframes rotateSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Orbit pulse animation for dots */
+@keyframes orbitPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Orbit rotation animation */
+.animate-orbit-rotation {
+  animation: orbitRotation 30s linear infinite;
+}
+
+@keyframes orbitRotation {
   from {
     transform: rotate(0deg);
   }
