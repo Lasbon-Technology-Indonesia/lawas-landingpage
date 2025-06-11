@@ -27,18 +27,35 @@
           </div>
           
           <div class="flex justify-center lg:justify-end">
-            <div class="relative">
-              <div class="w-80 h-80 rounded-full bg-gradient-to-br from-primary to-secondary opacity-20 animate-pulse-slow"></div>
+            <div class="relative w-80 h-80">
+              <!-- Pulsing Gradient Background -->
+              <div class="w-full h-full rounded-full bg-gradient-to-br from-primary to-secondary opacity-20 animate-pulse-slow"></div>
+
+              <!-- White Transparent Inner Circle with Logo -->
               <div class="absolute inset-0 flex items-center justify-center">
                 <div class="w-60 h-60 rounded-full bg-white bg-opacity-10 flex items-center justify-center logo-pulse">
-                  <img src="/logo.png" alt="LAWAS Logo" class="w-40 h-40 object-contain" />
+                  <img src="/lawas-logo.png" alt="LAWAS Logo" class="w-40 h-40 object-contain" />
                 </div>
               </div>
+
               <!-- Floating dots with enhanced animation -->
               <div class="absolute top-4 right-4 w-4 h-4 bg-white rounded-full opacity-60 animate-float-1"></div>
               <div class="absolute bottom-8 left-8 w-3 h-3 bg-primary rounded-full opacity-80 animate-float-2"></div>
               <div class="absolute top-1/2 left-4 w-2 h-2 bg-secondary rounded-full opacity-70 animate-float-3"></div>
               <div class="absolute bottom-4 right-12 w-3 h-3 bg-white rounded-full opacity-50 animate-float-4"></div>
+
+              <!-- Orbiting dots -->
+              <div
+                class="absolute inset-0 origin-center will-change-transform"
+                v-motion="orbitMotion"
+              >
+                <div
+                  v-for="i in 12"
+                  :key="i"
+                  class="absolute w-3 h-3 bg-white rounded-full"
+                  :style="getDotStyle(i - 1)"
+                ></div>
+              </div>
             </div>
           </div>
         </div>
@@ -548,6 +565,28 @@ const marketStats = computed(() => {
 /**
  * * Methods
  */
+const orbitMotion = ref({
+  initial: { rotate: 0 },
+  animate: {
+    rotate: 360,
+    transition: {
+      duration: 20,
+      repeat: Infinity,
+      ease: 'linear',
+    },
+  },
+});
+
+const getDotStyle = (index) => {
+  const angle = index * 30
+  return {
+    top: '50%',
+    left: '50%',
+    transform: `rotate(${angle}deg) translateY(-130px) translateX(-50%)`,
+    opacity: index % 2 === 0 ? 0.8 : 0.4,
+  }
+}
+
 const formatNumber = (num) => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(2) + 'M'

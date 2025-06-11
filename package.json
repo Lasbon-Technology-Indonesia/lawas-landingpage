@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
+    "@vueuse/motion": "^3.0.3",
     "axios": "^1.6.2",
     "chart.js": "^4.4.1",
     "nuxt": "^3.8.2",

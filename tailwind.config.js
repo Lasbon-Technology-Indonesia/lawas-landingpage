@@ -21,7 +21,23 @@ module.exports = {
           DEFAULT: '#f8fafc',
           darker: '#e2e8f0'
         }
-      }
+      },
+      theme: {
+      extend: {
+        animation: {
+          'float-1': 'float 6s ease-in-out infinite',
+          'float-2': 'float 7s ease-in-out infinite',
+          'float-3': 'float 5s ease-in-out infinite',
+          'float-4': 'float 8s ease-in-out infinite',
+        },
+        keyframes: {
+          float: {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-10px)' },
+          },
+        },
+      },
+    }
     }
   },
   plugins: []
