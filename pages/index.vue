@@ -77,7 +77,7 @@
             <div class="text-4xl lg:text-5xl font-bold gradient-text mb-2 animate-number">
               {{ trustlines }}+
             </div>
-            <div class="text-gray-400 text-lg">People Joined</div>
+            <div class="text-gray-400 text-lg">Trustlines</div>
           </div>
         </div>
       </div>
