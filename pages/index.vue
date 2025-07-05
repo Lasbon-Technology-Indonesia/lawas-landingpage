@@ -299,7 +299,7 @@
               <div class="bg-gray-800 rounded-lg p-6">
                 <div class="text-center">
                   <h4 class="text-lg font-semibold mb-4">Price Chart</h4>
-                  <div class="h-96 rounded-lg overflow-hidden">
+                  <div class="h-[600px] rounded-lg overflow-hidden">
                     <iframe 
                       height="100%" 
                       width="100%" 
