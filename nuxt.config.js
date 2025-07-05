@@ -38,6 +38,17 @@ export default defineNuxtConfig({
     host: '0.0.0.0'
   },
   
+  // Vite configuration
+  vite: {
+    server: {
+      hmr: {
+        clientPort: 443,
+        protocol: 'wss'
+      },
+      allowedHosts: 'all'
+    }
+  },
+  
   // Compatibility date for Nitro
   nitro: {
     compatibilityDate: '2025-06-03'

@@ -93,93 +93,228 @@
           <p class="section-subtitle">
             Track LAWAS token performance with real-time price charts and market data.
           </p>
-        </div>
-        
-        <!-- Current Price Display -->
-        <div class="card mb-8">
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-400 mb-2">Current Price</h3>
-              <div class="flex items-center justify-between">
-                <div class="text-3xl font-bold animate-number">{{ selectedCurrency === 'IDR' ? 'Rp' : '$' }}{{ formatPrice(currentPrice * (selectedCurrency === 'IDR' ? currencyRates['IDR'] : 1)) }}</div>
-                <select v-model="selectedCurrency" class="bg-gray-700 text-white px-3 py-2 rounded">
-                  <option value="USD">USD</option>
-                  <option value="IDR">IDR</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="JPY">JPY</option>
-                </select>
-              </div>
-            </div>
-            
-            <!-- Currency Conversion -->
-            <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div v-for="currency in currencyItems" :key="currency.currency" class="bg-gray-700 p-4 rounded hover-scale">
-                <div class="text-sm text-gray-400">{{ currency.currency }}</div>
-                <div class="font-bold">{{ currency.formattedPrice }}</div>
-                <div class="text-xs text-gray-500">{{ currency.baseCurrency }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chart Component -->
-        <div class="card">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold">LAWAS/USD Price Chart</h3>
-            <div class="flex space-x-2">
+          
+          <!-- Data Source Toggle -->
+          <div class="flex justify-center mt-8 mb-8">
+            <div class="bg-gray-800 rounded-lg p-1 flex">
               <button 
-                v-for="period in chartPeriods" 
-                :key="period"
-                @click="setSelectedPeriod(period)"
+                @click="setDataSource('xpm')"
                 :class="[
-                  'px-3 py-1 rounded text-sm font-medium transition-colors hover-scale',
-                  selectedPeriod === period 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  'px-6 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                  dataSource === 'xpm' 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 ]"
               >
-                {{ period }}
+                XPM Market
+              </button>
+              <button 
+                @click="setDataSource('dexscreener')"
+                :class="[
+                  'px-6 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                  dataSource === 'dexscreener' 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                ]"
+              >
+                Dexscreener
+              </button>
+              <button 
+                @click="setDataSource('geckoterminal')"
+                :class="[
+                  'px-6 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                  dataSource === 'geckoterminal' 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                ]"
+              >
+                GeckoTerminal
               </button>
             </div>
           </div>
-          
-          <!-- Chart Container -->
-          <div class="h-96">
-            <PriceChart :chart-data="chartData" :period="selectedPeriod" :is-dark-mode="true" />
+        </div>
+        
+        <!-- XPM Market Data (Original) -->
+        <div v-if="dataSource === 'xpm'">
+          <!-- Current Price Display -->
+          <div class="card mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <div class="md:col-span-2">
+                <h3 class="text-lg font-semibold text-gray-400 mb-2">Current Price</h3>
+                <div class="flex items-center justify-between">
+                  <div class="text-3xl font-bold animate-number">{{ selectedCurrency === 'IDR' ? 'Rp' : '$' }}{{ formatPrice(currentPrice * (selectedCurrency === 'IDR' ? currencyRates['IDR'] : 1)) }}</div>
+                  <select v-model="selectedCurrency" class="bg-gray-700 text-white px-3 py-2 rounded">
+                    <option value="USD">USD</option>
+                    <option value="IDR">IDR</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="JPY">JPY</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Currency Conversion -->
+              <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div v-for="currency in currencyItems" :key="currency.currency" class="bg-gray-700 p-4 rounded hover-scale">
+                  <div class="text-sm text-gray-400">{{ currency.currency }}</div>
+                  <div class="font-bold">{{ currency.formattedPrice }}</div>
+                  <div class="text-xs text-gray-500">{{ currency.baseCurrency }}</div>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <!-- OHLC Data -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700">
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">Open</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.open) }}</div>
-              <span class="tooltip">Opening price for the selected period</span>
+
+          <!-- Chart Component -->
+          <div class="card">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold">LAWAS/USD Price Chart</h3>
+              <div class="flex space-x-2">
+                <button 
+                  v-for="period in chartPeriods" 
+                  :key="period"
+                  @click="setSelectedPeriod(period)"
+                  :class="[
+                    'px-3 py-1 rounded text-sm font-medium transition-colors hover-scale',
+                    selectedPeriod === period 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  ]"
+                >
+                  {{ period }}
+                </button>
+              </div>
             </div>
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">Close</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.close) }}</div>
-              <span class="tooltip">Closing price for the selected period</span>
+            
+            <!-- Chart Container -->
+            <div class="h-96">
+              <PriceChart :chart-data="chartData" :period="selectedPeriod" :is-dark-mode="true" />
             </div>
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">High</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.high) }}</div>
-              <span class="tooltip">Highest price during the selected period</span>
+            
+            <!-- OHLC Data -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700">
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">Open</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.open) }}</div>
+                <span class="tooltip">Opening price for the selected period</span>
+              </div>
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">Close</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.close) }}</div>
+                <span class="tooltip">Closing price for the selected period</span>
+              </div>
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">High</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.high) }}</div>
+                <span class="tooltip">Highest price during the selected period</span>
+              </div>
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">Low</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.low) }}</div>
+                <span class="tooltip">Lowest price during the selected period</span>
+              </div>
             </div>
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">Low</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.low) }}</div>
-              <span class="tooltip">Lowest price during the selected period</span>
+          </div>
+
+          <!-- Market Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div v-for="stat in marketStats" :key="stat.label" class="card text-center hover-scale">
+              <h4 class="text-lg font-semibold text-gray-400 mb-2">{{ stat.label }}</h4>
+              <div class="text-2xl font-bold animate-number">{{ stat.value }}</div>
+            </div>
+          </div>
+        </div>
+               
+        <!-- Dexscreener Data -->
+        <div v-else-if="dataSource === 'dexscreener'">
+          <div class="card">
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold mb-2">LAWAS Chart - Dexscreener</h3>
+              <p class="text-gray-400">Real-time data from Dexscreener</p>
+            </div>
+            
+            <!-- Dexscreener Embed -->
+            <div class="dexscreener-embed">
+              <iframe 
+                src="https://dexscreener.com/xrpl/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&loadChartSettings=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=0&chartType=usd&interval=15"
+                title="LAWAS Dexscreener Chart"
+                class="w-full rounded-lg"
+                style="height: 600px; border: 0;"
+              ></iframe>
             </div>
           </div>
         </div>
 
-        <!-- Market Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-          <div v-for="stat in marketStats" :key="stat.label" class="card text-center hover-scale">
-            <h4 class="text-lg font-semibold text-gray-400 mb-2">{{ stat.label }}</h4>
-            <div class="text-2xl font-bold animate-number">{{ stat.value }}</div>
+        <!-- GeckoTerminal Data -->
+        <div v-else-if="dataSource === 'geckoterminal'">
+          <div class="card">
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold mb-2">LAWAS Chart - GeckoTerminal</h3>
+              <p class="text-gray-400">Real-time data from GeckoTerminal API</p>
+            </div>
+            
+            <!-- Loading State -->
+            <div v-if="geckoLoading" class="text-center py-8">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p class="text-gray-400">Loading GeckoTerminal data...</p>
+            </div>
 
+            <!-- Error State -->
+            <div v-else-if="geckoError" class="text-center py-8">
+              <div class="text-red-400 mb-4">
+                <svg class="h-12 w-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p class="text-red-400">{{ geckoError }}</p>
+              <button @click="fetchGeckoData" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+                Retry
+              </button>
+            </div>
+
+            <!-- GeckoTerminal Data Display -->
+            <div v-else-if="geckoData" class="space-y-6">
+              <!-- Price Information -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">Current Price</div>
+                  <div class="text-xl font-bold text-primary">${{ geckoData.price_usd }}</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">24h Change</div>
+                  <div :class="['text-xl font-bold', geckoData.price_change_24h >= 0 ? 'text-green-400' : 'text-red-400']">
+                    {{ geckoData.price_change_24h >= 0 ? '+' : '' }}{{ geckoData.price_change_24h }}%
+                  </div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">24h Volume</div>
+                  <div class="text-xl font-bold">${{ formatNumber(geckoData.volume_24h) }}</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">Liquidity</div>
+                  <div class="text-xl font-bold">${{ formatNumber(geckoData.reserve_usd) }}</div>
+                </div>
+              </div>
+
+              <!-- Chart Embed -->
+              <div class="bg-gray-800 rounded-lg p-6">
+                <div class="text-center">
+                  <h4 class="text-lg font-semibold mb-4">Price Chart</h4>
+                  <div class="h-96 rounded-lg overflow-hidden">
+                    <iframe 
+                      height="100%" 
+                      width="100%" 
+                      id="geckoterminal-embed" 
+                      title="GeckoTerminal Embed" 
+                      src="https://www.geckoterminal.com/id/xrpl/pools/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=15m" 
+                      frameborder="0" 
+                      allow="clipboard-write" 
+                      allowfullscreen
+                      class="w-full h-full rounded-lg">
+                    </iframe>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -450,6 +585,12 @@ import ContractAddress from '@/components/ContractAddress.vue'
 const selectedCurrency = ref("USD")
 const selectedPeriod = ref("1D")
 const chartPeriods = ["1D", "1W", "1M", "1Y", "ALL"]
+const dataSource = ref("xpm") // Default to XPM Market
+
+// GeckoTerminal state
+const geckoData = ref(null)
+const geckoLoading = ref(false)
+const geckoError = ref(null)
 
 const tokenData = ref({
   title: "LAWAS",
@@ -673,6 +814,53 @@ const setSelectedPeriod = (period) => {
   selectedPeriod.value = period
 
   fetchChartData(param.toLowerCase())
+}
+
+const setDataSource = (source) => {
+  dataSource.value = source
+  if (source === 'geckoterminal') {
+    fetchGeckoData()
+  }
+}
+
+// Fetch GeckoTerminal data
+const fetchGeckoData = async () => {
+  geckoLoading.value = true
+  geckoError.value = null
+  
+  try {
+    const poolAddress = '4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP'
+    const response = await fetch(`https://api.geckoterminal.com/api/v2/networks/xrpl/pools/${poolAddress}`, {
+      headers: {
+        'Accept': 'application/json;version=20230302'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    if (data.data && data.data.attributes) {
+      const pool = data.data.attributes
+      geckoData.value = {
+        price_usd: parseFloat(pool.base_token_price_usd || 0).toFixed(8),
+        price_change_24h: parseFloat(pool.price_change_percentage?.h24 || 0).toFixed(2),
+        volume_24h: parseFloat(pool.volume_usd?.h24 || 0),
+        reserve_usd: parseFloat(pool.reserve_in_usd || 0),
+        market_cap: parseFloat(pool.market_cap_usd || 0),
+        transactions_24h: pool.transactions?.h24?.buys + pool.transactions?.h24?.sells || 0
+      }
+    } else {
+      throw new Error('Invalid data format from GeckoTerminal API')
+    }
+  } catch (error) {
+    console.error('Error fetching GeckoTerminal data:', error)
+    geckoError.value = error.message || 'Failed to fetch data from GeckoTerminal'
+  } finally {
+    geckoLoading.value = false
+  }
 }
 
 
