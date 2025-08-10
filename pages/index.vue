@@ -93,94 +93,227 @@
           <p class="section-subtitle">
             Track LAWAS token performance with real-time price charts and market data.
           </p>
-        </div>
-        
-        <!-- Current Price Display -->
-        <div class="card mb-8">
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-400 mb-2">Current Price</h3>
-              <div class="flex items-center justify-between">
-                <div class="text-3xl font-bold animate-number">${{ formatPrice(currentPrice) }}</div>
-                <select v-model="selectedCurrency" class="bg-gray-700 text-white px-3 py-2 rounded">
-                  <option value="USD">USD</option>
-                  <!-- <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="JPY">JPY</option> -->
-                </select>
-                <div class="text-green-400 font-semibold">+5.2% ↗</div>
-              </div>
-            </div>
-            
-            <!-- Currency Conversion -->
-            <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div v-for="currency in currencyItems" :key="currency.currency" class="bg-gray-700 p-4 rounded hover-scale">
-                <div class="text-sm text-gray-400">{{ currency.currency }}</div>
-                <div class="font-bold">{{ currency.formattedPrice }}</div>
-                <div class="text-xs text-gray-500">{{ currency.baseCurrency }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chart Component -->
-        <div class="card">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold">LAWAS/USD Price Chart</h3>
-            <div class="flex space-x-2">
+          
+          <!-- Data Source Toggle -->
+          <div class="flex justify-center mt-8 mb-8">
+            <div class="bg-gray-800 rounded-lg p-1 flex">
               <button 
-                v-for="period in chartPeriods" 
-                :key="period"
-                @click="setSelectedPeriod(period)"
+                @click="setDataSource('xpm')"
                 :class="[
-                  'px-3 py-1 rounded text-sm font-medium transition-colors hover-scale',
-                  selectedPeriod === period 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  'px-6 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                  dataSource === 'xpm' 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 ]"
               >
-                {{ period }}
+                XPM Market
+              </button>
+              <button 
+                @click="setDataSource('dexscreener')"
+                :class="[
+                  'px-6 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                  dataSource === 'dexscreener' 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                ]"
+              >
+                Dexscreener
+              </button>
+              <button 
+                @click="setDataSource('geckoterminal')"
+                :class="[
+                  'px-6 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                  dataSource === 'geckoterminal' 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                ]"
+              >
+                GeckoTerminal
               </button>
             </div>
           </div>
-          
-          <!-- Chart Container -->
-          <div class="h-96">
-            <PriceChart :chart-data="chartData" :period="selectedPeriod" :is-dark-mode="true" />
+        </div>
+        
+        <!-- XPM Market Data (Original) -->
+        <div v-if="dataSource === 'xpm'">
+          <!-- Current Price Display -->
+          <div class="card mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <div class="md:col-span-2">
+                <h3 class="text-lg font-semibold text-gray-400 mb-2">Current Price</h3>
+                <div class="flex items-center justify-between">
+                  <div class="text-3xl font-bold animate-number">{{ selectedCurrency === 'IDR' ? 'Rp' : '$' }}{{ formatPrice(currentPrice * (selectedCurrency === 'IDR' ? currencyRates['IDR'] : 1)) }}</div>
+                  <select v-model="selectedCurrency" class="bg-gray-700 text-white px-3 py-2 rounded">
+                    <option value="USD">USD</option>
+                    <option value="IDR">IDR</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="JPY">JPY</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Currency Conversion -->
+              <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div v-for="currency in currencyItems" :key="currency.currency" class="bg-gray-700 p-4 rounded hover-scale">
+                  <div class="text-sm text-gray-400">{{ currency.currency }}</div>
+                  <div class="font-bold">{{ currency.formattedPrice }}</div>
+                  <div class="text-xs text-gray-500">{{ currency.baseCurrency }}</div>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <!-- OHLC Data -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700">
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">Open</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.open) }}</div>
-              <span class="tooltip">Opening price for the selected period</span>
+
+          <!-- Chart Component -->
+          <div class="card">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold">LAWAS/USD Price Chart</h3>
+              <div class="flex space-x-2">
+                <button 
+                  v-for="period in chartPeriods" 
+                  :key="period"
+                  @click="setSelectedPeriod(period)"
+                  :class="[
+                    'px-3 py-1 rounded text-sm font-medium transition-colors hover-scale',
+                    selectedPeriod === period 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  ]"
+                >
+                  {{ period }}
+                </button>
+              </div>
             </div>
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">Close</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.close) }}</div>
-              <span class="tooltip">Closing price for the selected period</span>
+            
+            <!-- Chart Container -->
+            <div class="h-96">
+              <PriceChart :chart-data="chartData" :period="selectedPeriod" :is-dark-mode="true" />
             </div>
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">High</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.high) }}</div>
-              <span class="tooltip">Highest price during the selected period</span>
+            
+            <!-- OHLC Data -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700">
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">Open</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.open) }}</div>
+                <span class="tooltip">Opening price for the selected period</span>
+              </div>
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">Close</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.close) }}</div>
+                <span class="tooltip">Closing price for the selected period</span>
+              </div>
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">High</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.high) }}</div>
+                <span class="tooltip">Highest price during the selected period</span>
+              </div>
+              <div class="has-tooltip hover-scale">
+                <div class="text-sm text-gray-400">Low</div>
+                <div class="font-bold">${{ formatPrice(ohlcData.low) }}</div>
+                <span class="tooltip">Lowest price during the selected period</span>
+              </div>
             </div>
-            <div class="has-tooltip hover-scale">
-              <div class="text-sm text-gray-400">Low</div>
-              <div class="font-bold">${{ formatPrice(ohlcData.low) }}</div>
-              <span class="tooltip">Lowest price during the selected period</span>
+          </div>
+
+          <!-- Market Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div v-for="stat in marketStats" :key="stat.label" class="card text-center hover-scale">
+              <h4 class="text-lg font-semibold text-gray-400 mb-2">{{ stat.label }}</h4>
+              <div class="text-2xl font-bold animate-number">{{ stat.value }}</div>
+            </div>
+          </div>
+        </div>
+               
+        <!-- Dexscreener Data -->
+        <div v-else-if="dataSource === 'dexscreener'">
+          <div class="card">
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold mb-2">LAWAS Chart - Dexscreener</h3>
+              <p class="text-gray-400">Real-time data from Dexscreener</p>
+            </div>
+            
+            <!-- Dexscreener Embed -->
+            <div class="dexscreener-embed">
+              <iframe 
+                src="https://dexscreener.com/xrpl/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&loadChartSettings=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=0&chartType=usd&interval=15"
+                title="LAWAS Dexscreener Chart"
+                class="w-full rounded-lg"
+                style="height: 600px; border: 0;"
+              ></iframe>
             </div>
           </div>
         </div>
 
-        <!-- Market Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-          <div v-for="stat in marketStats" :key="stat.label" class="card text-center hover-scale">
-            <h4 class="text-lg font-semibold text-gray-400 mb-2">{{ stat.label }}</h4>
-            <div class="text-2xl font-bold animate-number">{{ stat.value }}</div>
-            <div :class="stat.change >= 0 ? 'text-green-400' : 'text-red-400'" class="text-sm">
-              {{ stat.change >= 0 ? '+' : '' }}{{ stat.change }}% ({{ stat.period }})
+        <!-- GeckoTerminal Data -->
+        <div v-else-if="dataSource === 'geckoterminal'">
+          <div class="card">
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold mb-2">LAWAS Chart - GeckoTerminal</h3>
+              <p class="text-gray-400">Real-time data from GeckoTerminal API</p>
+            </div>
+            
+            <!-- Loading State -->
+            <div v-if="geckoLoading" class="text-center py-8">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p class="text-gray-400">Loading GeckoTerminal data...</p>
+            </div>
+
+            <!-- Error State -->
+            <div v-else-if="geckoError" class="text-center py-8">
+              <div class="text-red-400 mb-4">
+                <svg class="h-12 w-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p class="text-red-400">{{ geckoError }}</p>
+              <button @click="fetchGeckoData" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+                Retry
+              </button>
+            </div>
+
+            <!-- GeckoTerminal Data Display -->
+            <div v-else-if="geckoData" class="space-y-6">
+              <!-- Price Information -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">Current Price</div>
+                  <div class="text-xl font-bold text-primary">${{ geckoData.price_usd }}</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">24h Change</div>
+                  <div :class="['text-xl font-bold', geckoData.price_change_24h >= 0 ? 'text-green-400' : 'text-red-400']">
+                    {{ geckoData.price_change_24h >= 0 ? '+' : '' }}{{ geckoData.price_change_24h }}%
+                  </div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">24h Volume</div>
+                  <div class="text-xl font-bold">${{ formatNumber(geckoData.volume_24h) }}</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4">
+                  <div class="text-sm text-gray-400 mb-1">Liquidity</div>
+                  <div class="text-xl font-bold">${{ formatNumber(geckoData.reserve_usd) }}</div>
+                </div>
+              </div>
+
+              <!-- Chart Embed -->
+              <div class="bg-gray-800 rounded-lg p-6">
+                <div class="text-center">
+                  <h4 class="text-lg font-semibold mb-4">Price Chart</h4>
+                  <div class="h-[600px] rounded-lg overflow-hidden">
+                    <iframe 
+                      height="100%" 
+                      width="100%" 
+                      id="geckoterminal-embed" 
+                      title="GeckoTerminal Embed" 
+                      src="https://www.geckoterminal.com/id/xrpl/pools/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=15m" 
+                      frameborder="0" 
+                      allow="clipboard-write" 
+                      allowfullscreen
+                      class="w-full h-full rounded-lg">
+                    </iframe>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -316,192 +449,203 @@
             <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">2</div>
              <div class="flex justify-center mb-4 mt-4">
                 <!-- Trustline Icon -->
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25L12 21m0 0l-3.75-3.75M12 21V3" /></svg>
              </div>
             <h3 class="text-xl font-bold mb-3 text-center">Set Trustline</h3>
             <p class="text-gray-300 text-sm text-center">
-              Set a trustline to the LAWAS token issuer address. This allows your wallet to hold LAWAS tokens. Click the "Set Trustline" button on our website to do this easily.
+              Establish a trustline to LAWAS token in your XRP Ledger wallet. This allows you to hold LAWAS tokens and ensures secure transactions.
             </p>
+            <button class="btn-primary w-full mt-4 hover-scale" @click="redirectToXPM">Set Trustline</button>
           </div>
 
-          <!-- Step 3: Buy on DEX -->
+          <!-- Step 3: Buy LAWAS -->
           <div class="card hover-scale relative p-6">
-             <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">3</div>
+            <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">3</div>
              <div class="flex justify-center mb-4 mt-4">
-                <!-- DEX Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                <!-- Buy Icon -->
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.794 2.101c.745.185 1.485-.355 1.485-1.101v-1.5L21.75 15V4.75a2.25 2.25 0 00-2.25-2.25H15a3 3 0 01-3-3V2.25A2.25 2.25 0 009.75 0H4.5A2.25 2.25 0 002.25 2.25v16.5z" /></svg>
              </div>
-            <h3 class="text-xl font-bold mb-3 text-center">Buy on DEX</h3>
+            <h3 class="text-xl font-bold mb-3 text-center">Buy LAWAS</h3>
             <p class="text-gray-300 text-sm text-center">
-              Use the XRP Ledger\'s built-in decentralized exchange (DEX) to swap XRP for LAWAS tokens. You can do this through your wallet app or through services like XPMarket.
+              Purchase LAWAS tokens on supported decentralized exchanges (DEXs) or through trusted liquidity providers. Ensure you are using the correct token address.
             </p>
+            <button class="btn-primary w-full mt-4 hover-scale" @click="redirectToXPM">Buy LAWAS</button>
           </div>
 
-          <!-- Step 4: Store Securely -->
+          <!-- Step 4: Secure Your Assets -->
           <div class="card hover-scale relative p-6">
-             <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">4</div>
+            <div class="absolute top-0 left-0 bg-primary text-white w-8 h-8 flex items-center justify-center rounded-br-lg rounded-tl-lg font-bold">4</div>
              <div class="flex justify-center mb-4 mt-4">
                 <!-- Secure Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016A11.959 11.959 0 0112 2.714z" /></svg>
              </div>
-            <h3 class="text-xl font-bold mb-3 text-center">Store Securely</h3>
+            <h3 class="text-xl font-bold mb-3 text-center">Secure Your Assets</h3>
             <p class="text-gray-300 text-sm text-center">
-              After purchasing, your LAWAS tokens will be stored in your XRP wallet. Make sure to keep your recovery phrase and private keys secure.
+              Store your LAWAS tokens securely in your XRP Ledger wallet. Consider using a hardware wallet for enhanced security.
             </p>
+            <button class="btn-secondary w-full mt-4 hover-scale">Learn About Security</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Token Holders Section -->
-    <section id="holders" class="py-20 bg-dark-lighter">
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-dark-lighter">
       <div class="container mx-auto px-4">
         <div class="text-center mb-12">
           <h2 class="section-title">
-            Token <span class="gradient-text">Holders</span>
+            Frequently Asked <span class="gradient-text">Questions</span>
           </h2>
           <p class="section-subtitle">
-            Explore the distribution of LAWAS token holders and community growth.
+            Find answers to common questions about LAWAS token and its ecosystem.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Holders Growth -->
-          <div class="card hover-scale">
-            <div class="flex items-center mb-6">
-              <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-3 animate-spin-slow">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-bold">Holders Growth</h3>
+        <div class="max-w-3xl mx-auto">
+          <div v-for="(faq, index) in faqs" :key="index" class="mb-4">
+            <button 
+              class="w-full text-left p-4 bg-gray-800 rounded-lg flex justify-between items-center focus:outline-none hover:bg-gray-700 transition-colors duration-300"
+              @click="toggleFaq(index)"
+            >
+              <span class="font-semibold text-lg">{{ faq.question }}</span>
+              <svg 
+                :class="{'rotate-180': faq.open}" 
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div v-if="faq.open" class="p-4 bg-gray-700 rounded-b-lg text-gray-300">
+              {{ faq.answer }}
             </div>
-            <div class="text-4xl font-bold gradient-text mb-4 animate-number">{{ holders }}</div>
-            <div class="h-32 bg-gray-700 rounded mb-4 flex items-end justify-between px-2 pb-2">
-              <!-- Enhanced bar chart representation with animation -->
-              <div class="w-8 bg-primary h-8 rounded-t transform transition-all duration-700 hover:h-10 animate-bar-1"></div>
-              <div class="w-8 bg-primary h-12 rounded-t transform transition-all duration-700 hover:h-14 animate-bar-2"></div>
-              <div class="w-8 bg-primary h-16 rounded-t transform transition-all duration-700 hover:h-18 animate-bar-3"></div>
-              <div class="w-8 bg-primary h-20 rounded-t transform transition-all duration-700 hover:h-22 animate-bar-4"></div>
-              <div class="w-8 bg-primary h-24 rounded-t transform transition-all duration-700 hover:h-26 animate-bar-5"></div>
-              <div class="w-8 bg-primary h-28 rounded-t transform transition-all duration-700 hover:h-30 animate-bar-6"></div>
-            </div>
-            <p class="text-gray-300">
-              The LAWAS community has been growing steadily since launch, with new holders joining every day. 
-              Our goal is to reach 1,000 holders by the end of the year.
-            </p>
-          </div>
-
-          <!-- Holders Distribution -->
-          <div class="card hover-scale">
-            <div class="flex items-center mb-6">
-              <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center mr-3 animate-bounce-slow">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-bold">Holders Distribution</h3>
-            </div>
-            
-            <!-- Pie Chart Representation with enhanced hover effects -->
-            <div class="flex justify-center mb-6">
-              <div class="relative w-48 h-48 transform transition-all duration-500 hover:scale-110 animate-rotate-slow">
-                <div class="absolute inset-0 rounded-full" style="background: conic-gradient(#00c2b3 0deg 234deg, #3498db 234deg 324deg, #9b59b6 324deg 353deg, #e74c3c 353deg 360deg);"></div>
-                <div class="absolute inset-4 bg-gray-800 rounded-full flex items-center justify-center">
-                  <div class="text-center">
-                    <div class="text-2xl font-bold animate-number">{{ holders }}</div>
-                    <div class="text-sm text-gray-400">Total</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="space-y-3">
-              <div class="flex items-center justify-between hover-scale">
-                <div class="flex items-center">
-                  <div class="w-3 h-3 bg-primary rounded-full mr-2 animate-pulse"></div>
-                  <span class="text-sm">Small Holders</span>
-                </div>
-                <span class="font-semibold">65% (282 holders)</span>
-              </div>
-              <div class="text-xs text-gray-400 ml-5">< 10,000 LAWAS</div>
-              
-              <div class="flex items-center justify-between hover-scale">
-                <div class="flex items-center">
-                  <div class="w-3 h-3 bg-secondary rounded-full mr-2 animate-pulse"></div>
-                  <span class="text-sm">Medium Holders</span>
-                </div>
-                <span class="font-semibold">25% (108 holders)</span>
-              </div>
-              <div class="text-xs text-gray-400 ml-5">10,000 - 100,000 LAWAS</div>
-              
-              <div class="flex items-center justify-between hover-scale">
-                <div class="flex items-center">
-                  <div class="w-3 h-3 bg-purple-500 rounded-full mr-2 animate-pulse"></div>
-                  <span class="text-sm">Large Holders</span>
-                </div>
-                <span class="font-semibold">8% (35 holders)</span>
-              </div>
-              <div class="text-xs text-gray-400 ml-5">100,000 - 1,000,000 LAWAS</div>
-              
-              <div class="flex items-center justify-between hover-scale">
-                <div class="flex items-center">
-                  <div class="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-                  <span class="text-sm">Whales</span>
-                </div>
-                <span class="font-semibold">2% (8 holders)</span>
-              </div>
-              <div class="text-xs text-gray-400 ml-5">> 1,000,000 LAWAS</div>
-            </div>
-
-            <p class="text-gray-300 text-sm mt-4">
-              The distribution of LAWAS tokens shows a healthy balance between retail investors and larger stakeholders, 
-              ensuring good token circulation and reduced risk of price manipulation.
-            </p>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="section-title">
+            Get in <span class="gradient-text">Touch</span>
+          </h2>
+          <p class="section-subtitle">
+            Have questions or need support? Reach out to us.
+          </p>
+        </div>
+
+        <div class="max-w-lg mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
+          <form @submit.prevent="submitForm">
+            <div class="mb-4">
+              <label for="name" class="block text-gray-300 text-sm font-bold mb-2">Name</label>
+              <input type="text" id="name" v-model="form.name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-700 border-gray-600" required>
+            </div>
+            <div class="mb-4">
+              <label for="email" class="block text-gray-300 text-sm font-bold mb-2">Email</label>
+              <input type="email" id="email" v-model="form.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-700 border-gray-600" required>
+            </div>
+            <div class="mb-6">
+              <label for="message" class="block text-gray-300 text-sm font-bold mb-2">Message</label>
+              <textarea id="message" v-model="form.message" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-700 border-gray-600" required></textarea>
+            </div>
+            <div class="flex items-center justify-between">
+              <button type="submit" class="btn-primary w-full">Send Message</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark-lighter py-8 text-center text-gray-400">
+      <div class="container mx-auto px-4">
+        <p>&copy; 2024 LAWAS. All rights reserved.</p>
+        <div class="flex justify-center space-x-4 mt-4">
+          <a href="#" class="hover:text-white transition-colors duration-300">Privacy Policy</a>
+          <a href="#" class="hover:text-white transition-colors duration-300">Terms of Service</a>
+        </div>
+      </div>
+    </footer>
+
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import PriceChart from '~/components/PriceChart.vue'
-import ContractAddress from '~/components/ContractAddress.vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import PriceChart from '@/components/PriceChart.vue'
+import ContractAddress from '@/components/ContractAddress.vue'
+
 
 /**
- * * Variables
+ * * State
  */
+const selectedCurrency = ref("USD")
+const selectedPeriod = ref("1D")
+const chartPeriods = ["1D", "1W", "1M", "1Y", "ALL"]
+const dataSource = ref("xpm") // Default to XPM Market
+
+// GeckoTerminal state
+const geckoData = ref(null)
+const geckoLoading = ref(false)
+const geckoError = ref(null)
+
 const tokenData = ref({
-  code: 'LAWAS',
-  title: 'LAWAS',
-  issuer: 'rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC',
-  price: 0,
+  title: "LAWAS",
+  code: "LAWAS",
+  total: 100000000000,
+  circulating: 0,
   priceUsd: 0,
-  trustlines: 508,
-  holders: 435,
-  marketcap: 11646.176,
-  circulating: '798013801',
-  total: '994161854',
-  logo: 'https://api.xpmarket.com/storage/meme/LAWAS.png'
+  marketcap: 0,
+  holders: 0,
+  trustlines: 0,
+  change24h: 0,
+  issuer: "rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC"
 })
 
 const chartData = ref([])
-const selectedPeriod = ref('1D')
-const selectedCurrency = ref('USD')
-const chartPeriods = ['1D', '1W', '1M', '1Y']
 const currencyRates = ref({})
 
 const ohlcData = ref({
-  open: 0.000001240,
-  close: 0.000002350,
-  high: 0.000002350,
+  open: 0.000001250,
+  high: 0.000001280,
+  close: 0.000001260,
   low: 0.000001240
 })
 
-// Computed properties
+const faqs = ref([
+  {
+    question: "What is LAWAS token?",
+    answer: "LAWAS token is a digital asset built on the XRP Ledger, designed for secure and efficient cross-border transactions. It aims to provide institutional-grade security and reliability.",
+    open: false
+  },
+  {
+    question: "How can I buy LAWAS token?",
+    answer: "You can buy LAWAS token by first creating an XRP Ledger wallet, setting a trustline to LAWAS, and then purchasing it on supported decentralized exchanges (DEXs) or through trusted liquidity providers.",
+    open: false
+  },
+  {
+    question: "What are the use cases for LAWAS token?",
+    answer: "LAWAS token offers various utilities including trading fee discounts, governance voting rights, platform rewards, staking benefits, and access to premium features within our ecosystem.",
+    open: false
+  },
+  {
+    question: "Is LAWAS token secure?",
+    answer: "Yes, LAWAS token leverages the robust security features of the XRP Ledger. We also recommend users to store their tokens in secure XRP Ledger wallets, preferably hardware wallets, for enhanced security.",
+    open: false
+  }
+])
+
+const form = ref({
+  name: "",
+    email: "", message: ""
+})
+
+/**
+ * * Computed properties
+ */
 const marketCap = computed(() => {
   return formatNumber(tokenData.value.marketcap)
 })
@@ -519,7 +663,7 @@ const currentPrice = computed(() => {
 })
 
 const currencyItems = computed(() => {
-  const currencies = ['IDR', 'EUR', 'JPY', 'GBP']
+  const currencies = ["IDR", "EUR", "JPY", "GBP"]
   return currencies.map(currency => {
     const rate = currencyRates.value[currency] || 1
     return {
@@ -535,8 +679,8 @@ const marketStats = computed(() => {
   return [
     {
       label: 'Current Price',
-      value: `$${formatPrice(tokenData.value.priceUsd)}`,
-      change: 5.2,
+      value: `${selectedCurrency.value === 'IDR' ? 'Rp' : '$'}${formatPrice(tokenData.value.priceUsd * (selectedCurrency.value === 'IDR' ? currencyRates.value['IDR'] : 1))}`,
+      change: parseFloat(tokenData.value.change24h).toFixed(1),
       period: '24h'
     },
     {
@@ -567,10 +711,10 @@ const marketStats = computed(() => {
 const getDotStyle = (index) => {
   const angle = (index * 30) * (Math.PI / 180) // Convert to radians
   const radius = 130; // Orbit radius in pixels
-  const centerX = 50 // Center position (50% of container)Add commentMore actions
+  const centerX = 50 // Center position (50% of container)
   const centerY = 50 // Center position (50% of container)
   
- // Calculate x and y positions using trigonometryAdd commentMore actions
+ // Calculate x and y positions using trigonometry
   const x = centerX + (radius * Math.cos(angle)) / 3.2 // Adjust for percentage
   const y = centerY + (radius * Math.sin(angle)) / 3.2 // Adjust for percentage
   
@@ -615,11 +759,9 @@ const fetchTokenData = async () => {
         // Ensure priceUsd is a number and not scientific notation
         priceUsd: Number(data.data.priceUsd)
       }
-      showNotificationMessage('Price data updated')
     }
   } catch (error) {
-    console.error('Error fetching token data:', error)
-    showNotificationMessage('Failed to fetch token data', true)
+    console.error("Error fetching token data:", error)
   }
 }
 
@@ -636,8 +778,7 @@ const fetchChartData = async (period = '1d') => {
       }))
     }
   } catch (error) {
-    console.error('Error fetching chart data:', error)
-    showNotificationMessage('Failed to fetch chart data', true)
+    console.error("Error fetching chart data:", error)
   }
 }
 
@@ -656,8 +797,7 @@ const fetchCurrencyRates = async () => {
       currencyRates.value = rates
     }
   } catch (error) {
-    console.error('Error fetching currency rates:', error)
-    showNotificationMessage('Failed to fetch currency rates', true)
+    console.error("Error fetching currency rates:", error)
   }
 }
 
@@ -674,29 +814,76 @@ const setSelectedPeriod = (period) => {
   selectedPeriod.value = period
 
   fetchChartData(param.toLowerCase())
-  showNotificationMessage(`Chart period changed to ${period}`)
 }
 
-const showNotificationMessage = (message, isError = false) => {
-  // Emit notification event to parent component
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('notification', { 
-      detail: { message, isError } 
-    }))
+const setDataSource = (source) => {
+  dataSource.value = source
+  if (source === 'geckoterminal') {
+    fetchGeckoData()
   }
 }
+
+// Fetch GeckoTerminal data
+const fetchGeckoData = async () => {
+  geckoLoading.value = true
+  geckoError.value = null
+  
+  try {
+    const poolAddress = '4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP'
+    const response = await fetch(`https://api.geckoterminal.com/api/v2/networks/xrpl/pools/${poolAddress}`, {
+      headers: {
+        'Accept': 'application/json;version=20230302'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    if (data.data && data.data.attributes) {
+      const pool = data.data.attributes
+      geckoData.value = {
+        price_usd: parseFloat(pool.base_token_price_usd || 0).toFixed(8),
+        price_change_24h: parseFloat(pool.price_change_percentage?.h24 || 0).toFixed(2),
+        volume_24h: parseFloat(pool.volume_usd?.h24 || 0),
+        reserve_usd: parseFloat(pool.reserve_in_usd || 0),
+        market_cap: parseFloat(pool.market_cap_usd || 0),
+        transactions_24h: pool.transactions?.h24?.buys + pool.transactions?.h24?.sells || 0
+      }
+    } else {
+      throw new Error('Invalid data format from GeckoTerminal API')
+    }
+  } catch (error) {
+    console.error('Error fetching GeckoTerminal data:', error)
+    geckoError.value = error.message || 'Failed to fetch data from GeckoTerminal'
+  } finally {
+    geckoLoading.value = false
+  }
+}
+
+
 
 const redirectToXPM = () => {
   window.open(`https://xpmarket.com/token/LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC`, '_blank').focus();
 }
 
+const toggleFaq = (index) => {
+  faqs.value[index].open = !faqs.value[index].open
+}
+
+const submitForm = () => {
+  console.log('Form submitted:', form.value)
+  showNotificationMessage('Message sent successfully!')
+  form.value = { name: '', email: '', message: '' }
+}
 
 /**
  * * Watchers
  */
 // Watch for currency changes
 watch(selectedCurrency, (newCurrency) => {
-  showNotificationMessage(`Currency changed to ${newCurrency}`)
 })
 
 
@@ -916,3 +1103,5 @@ onMounted(async () => {
   }
 }
 </style>
+
+
