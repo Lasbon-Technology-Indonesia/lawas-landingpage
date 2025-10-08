@@ -435,7 +435,7 @@ const tokenAddresses = ref([
   { chain: 'Base', short: 'BASE', type: 'Contract', address: '0x31a531666e0e391e83eb64cda5d9f8633347e5ea', currency: 'LAWAS', explorer: 'https://basescan.org/token/0x31a531666e0e391e83eb64cda5d9f8633347e5ea' },
   { chain: 'Ethereum', short: 'ETH', type: 'Contract', address: '0x31a531666e0e391e83eb64cda5d9f8633347e5ea', currency: 'LAWAS', explorer: 'https://etherscan.io/token/0x31a531666e0e391e83eb64cda5d9f8633347e5ea' },
   { chain: 'TON Network', short: 'TON', type: 'Jetton', address: 'UQAvljuNWp_K9lioD1GQ4pQw1mALhG9u6s8PkqkEkjg1_84_', currency: 'LAWAS', explorer: 'https://tonviewer.com/UQAvljuNWp_K9lioD1GQ4pQw1mALhG9u6s8PkqkEkjg1_84_' },
-  { chain: 'Sui', short: 'SUI', type: 'Object', address: '0xd78f9894aa38030af550289da46e1c1515dc8450813c6d91254ac6fbcf52b7bd::lawas::LAWAS', currency: 'LAWAS', explorer: 'https://suiexplorer.com/object/0xd78f9894aa38030af550289da46e1c1515dc8450813c6d91254ac6fbcf52b7bd?module=lawas&network=mainnet' }
+  { chain: 'Sui', short: 'SUI', type: 'Object', address: '0xb91254614f140ce93c7c0e16607364a39c6d2bcdb84534333c7960b960fe4019::lawas::LAWAS', currency: 'LAWAS', explorer: 'https://suiexplorer.com/object/0xd78f9894aa38030af550289da46e1c1515dc8450813c6d91254ac6fbcf52b7bd?module=lawas&network=mainnet' }
 ])
 
 /* ------ Chart & currency ------ */
