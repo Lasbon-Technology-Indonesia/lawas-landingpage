@@ -1,6 +1,7 @@
 export default defineNuxtConfig({
   app: {
     head: {
+      title: 'LAWAS',
       link: [
         { rel: 'icon', type: 'image/png', href: '/logo.png' }
       ],

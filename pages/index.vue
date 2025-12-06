@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <!-- ============================== HERO ============================== -->
     <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -78,126 +78,189 @@
         <!-- Toggle -->
         <div class="flex justify-center mt-8 mb-8">
           <div class="bg-gray-800 rounded-lg p-1 flex">
-            <button @click="setDataSource('xpm')"          :class="['chip', dataSource === 'xpm' ? 'chip--active' : '']">XPM Market</button>
-            <button @click="setDataSource('dexscreener')"   :class="['chip', dataSource === 'dexscreener' ? 'chip--active' : '']">Dexscreener</button>
-            <button @click="setDataSource('geckoterminal')" :class="['chip', dataSource === 'geckoterminal' ? 'chip--active' : '']">GeckoTerminal</button>
+            <button
+              v-for="src in availableSources"
+              :key="src"
+              @click="setDataSource(src)"
+              :class="['chip', dataSource === src ? 'chip--active' : '']"
+            >
+              {{ sourceLabels[src] }}
+            </button>
           </div>
         </div>
         </div>
 
-        <!-- XPM -->
-        <div v-if="dataSource === 'xpm'">
-          <div class="card mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-              <div class="md:col-span-2">
-                <h3 class="text-lg font-semibold text-gray-400 mb-2">Current Price</h3>
-                <div class="flex items-center justify-between">
-                  <div class="text-3xl font-bold animate-number">
-                    {{ selectedCurrency === 'IDR' ? 'Rp' : '$' }}{{ formatPrice(currentPrice * (selectedCurrency === 'IDR' ? currencyRates['IDR'] : 1)) }}
-                  </div>
+        <!-- Current price + conversion -->
+        <div class="card mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div class="md:col-span-2">
+              <h3 class="text-lg font-semibold text-gray-400 mb-2">Current Price</h3>
+              <div class="flex items-center justify-between">
+                <div class="text-3xl font-bold animate-number">
+                  {{ currentPriceDisplay }}
+                </div>
+                <div class="flex gap-2">
+                  <select v-model="selectedAsset" class="select">
+                    <option value="XRP">LAWAS XRP</option>
+                    <option value="SOL">LAWAS SOL</option>
+                    <option value="BNB">LAWAS BNB</option>
+                  </select>
                   <select v-model="selectedCurrency" class="select">
-                    <option value="USD">USD</option><option value="IDR">IDR</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="JPY">JPY</option>
+                    <option value="USD">USD</option>
+                    <option value="IDR">IDR</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="JPY">JPY</option>
                   </select>
                 </div>
               </div>
-              <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div v-for="c in currencyItems" :key="c.currency" class="tile">
-                  <div class="text-sm text-gray-400">{{ c.currency }}</div>
-                  <div class="font-bold">{{ c.formattedPrice }}</div>
-                  <div class="text-xs text-gray-500">{{ c.baseCurrency }}</div>
-                </div>
+            </div>
+            <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div v-for="c in currencyItems" :key="c.currency" class="tile">
+                <div class="text-sm text-gray-400">{{ c.currency }}</div>
+                <div class="font-bold">{{ c.formattedPrice }}</div>
+                <div class="text-xs text-gray-500">{{ c.baseCurrency }}</div>
               </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">LAWAS/USD Price Chart</h3>
-              <div class="flex space-x-2">
-                <button v-for="p in chartPeriods" :key="p" @click="setSelectedPeriod(p)" :class="['chip', selectedPeriod === p ? 'chip--active' : '']">{{ p }}</button>
-              </div>
-            </div>
-
-            <div class="h-96">
-              <PriceChart :chart-data="chartData" :period="selectedPeriod" :is-dark-mode="true" />
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700">
-              <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">Open</div>  <div class="font-bold">${{ formatPrice(ohlcData.open) }}</div></div>
-              <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">Close</div> <div class="font-bold">${{ formatPrice(ohlcData.close) }}</div></div>
-              <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">High</div>  <div class="font-bold">${{ formatPrice(ohlcData.high) }}</div></div>
-              <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">Low</div>   <div class="font-bold">${{ formatPrice(ohlcData.low) }}</div></div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-            <div v-for="stat in marketStats" :key="stat.label" class="card text-center hover-scale">
-              <h4 class="text-lg font-semibold text-gray-400 mb-2">{{ stat.label }}</h4>
-              <div class="text-2xl font-bold animate-number">{{ stat.value }}</div>
             </div>
           </div>
         </div>
 
-        <!-- Dexscreener -->
-        <div v-else-if="dataSource === 'dexscreener'">
+        <!-- Chart & embeds per asset -->
+        <div v-if="selectedAsset === 'XRP'">
+          <div v-if="dataSource === 'xpm'">
+            <div class="card">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">LAWAS/USD Price Chart</h3>
+                <div class="flex space-x-2">
+                  <button v-for="p in chartPeriods" :key="p" @click="setSelectedPeriod(p)" :class="['chip', selectedPeriod === p ? 'chip--active' : '']">{{ p }}</button>
+                </div>
+              </div>
+
+              <div class="h-96">
+                <PriceChart :chart-data="chartData" :period="selectedPeriod" :is-dark-mode="true" />
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700">
+                <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">Open</div>  <div class="font-bold">${{ formatPrice(ohlcData.open) }}</div></div>
+                <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">Close</div> <div class="font-bold">${{ formatPrice(ohlcData.close) }}</div></div>
+                <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">High</div>  <div class="font-bold">${{ formatPrice(ohlcData.high) }}</div></div>
+                <div class="has-tooltip hover-scale"><div class="text-sm text-gray-400">Low</div>   <div class="font-bold">${{ formatPrice(ohlcData.low) }}</div></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+              <div v-for="stat in marketStats" :key="stat.label" class="card text-center hover-scale">
+                <h4 class="text-lg font-semibold text-gray-400 mb-2">{{ stat.label }}</h4>
+                <div class="text-2xl font-bold animate-number">{{ stat.value }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="dataSource === 'dexscreener'">
+            <div class="card">
+              <div class="text-center mb-6">
+                <h3 class="text-xl font-bold mb-2">LAWAS Chart - Dexscreener</h3>
+                <p class="text-gray-400">Real-time data from Dexscreener</p>
+              </div>
+              <div class="dexscreener-embed">
+                <iframe
+                  src="https://dexscreener.com/xrpl/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&loadChartSettings=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=0&chartType=usd&interval=15"
+                  title="LAWAS Dexscreener Chart"
+                  class="w-full rounded-lg"
+                  style="height: 600px; border: 0;"
+                ></iframe>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="dataSource === 'geckoterminal'">
+            <div class="card">
+              <div class="text-center mb-6">
+                <h3 class="text-xl font-bold mb-2">LAWAS Chart - GeckoTerminal</h3>
+                <p class="text-gray-400">Real-time data from GeckoTerminal API</p>
+              </div>
+
+              <div v-if="geckoLoading" class="text-center py-8">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p class="text-gray-400">Loading GeckoTerminal data...</p>
+              </div>
+
+              <div v-else-if="geckoError" class="text-center py-8">
+                <div class="text-red-400 mb-4">
+                  <svg class="h-12 w-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p class="text-red-400">{{ geckoError }}</p>
+                <button @click="fetchGeckoData" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">Retry</button>
+              </div>
+
+              <div v-else-if="geckoData" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div class="tile"><div class="text-sm text-gray-400 mb-1">Current Price</div><div class="text-xl font-bold text-primary">${{ geckoData.price_usd }}</div></div>
+                  <div class="tile"><div class="text-sm text-gray-400 mb-1">24h Change</div><div :class="['text-xl font-bold', geckoData.price_change_24h >= 0 ? 'text-green-400' : 'text-red-400']">{{ geckoData.price_change_24h >= 0 ? '+' : '' }}{{ geckoData.price_change_24h }}%</div></div>
+                  <div class="tile"><div class="text-sm text-gray-400 mb-1">24h Volume</div><div class="text-xl font-bold">${{ formatNumber(geckoData.volume_24h) }}</div></div>
+                  <div class="tile"><div class="text-sm text-gray-400 mb-1">Liquidity</div><div class="text-xl font-bold">${{ formatNumber(geckoData.reserve_usd) }}</div></div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-6">
+                  <div class="text-center">
+                    <h4 class="text-lg font-semibold mb-4">Price Chart</h4>
+                    <div class="h-[600px] rounded-lg overflow-hidden">
+                      <iframe
+                        height="100%" width="100%" id="geckoterminal-embed" title="GeckoTerminal Embed"
+                        src="https://www.geckoterminal.com/id/xrpl/pools/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=15m"
+                        frameborder="0" allow="clipboard-write" allowfullscreen class="w-full h-full rounded-lg">
+                      </iframe>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SOL chart -->
+        <div v-else-if="selectedAsset === 'SOL'">
           <div class="card">
             <div class="text-center mb-6">
-              <h3 class="text-xl font-bold mb-2">LAWAS Chart - Dexscreener</h3>
-              <p class="text-gray-400">Real-time data from Dexscreener</p>
+              <h3 class="text-xl font-bold mb-2">LAWAS SOL Chart</h3>
+              <p class="text-gray-400">
+                <span v-if="dataSource === 'dexscreener'">Data dari Dexscreener</span>
+                <span v-else>Data dari GeckoTerminal</span>
+              </p>
             </div>
-            <div class="dexscreener-embed">
+            <div class="h-[600px] rounded-lg overflow-hidden">
               <iframe
-                src="https://dexscreener.com/xrpl/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&loadChartSettings=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=0&chartType=usd&interval=15"
-                title="LAWAS Dexscreener Chart"
-                class="w-full rounded-lg"
-                style="height: 600px; border: 0;"
+                class="w-full h-full rounded-lg"
+                :src="dataSource === 'dexscreener'
+                  ? 'https://dexscreener.com/solana/G32DYT2PpDsq5t8RLPVHMagtBKYAa2DSohFhkSjJs7C6?embed=1&chartTheme=dark&theme=dark&chartStyle=1'
+                  : 'https://www.geckoterminal.com/id/solana/pools/CXHDQoQPRwLrR3ShqPbgBemhKpmAhkhHBCuQxmKbN2uP?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=15m'"
+                title="LAWAS SOL Chart"
+                style="border:0;"
               ></iframe>
             </div>
           </div>
         </div>
 
-        <!-- GeckoTerminal -->
-        <div v-else-if="dataSource === 'geckoterminal'">
+        <!-- BNB chart -->
+        <div v-else>
           <div class="card">
             <div class="text-center mb-6">
-              <h3 class="text-xl font-bold mb-2">LAWAS Chart - GeckoTerminal</h3>
-              <p class="text-gray-400">Real-time data from GeckoTerminal API</p>
+              <h3 class="text-xl font-bold mb-2">LAWAS BNB Chart</h3>
+              <p class="text-gray-400">
+                <span v-if="dataSource === 'dexscreener'">Data dari Dexscreener</span>
+                <span v-else>Data dari GeckoTerminal</span>
+              </p>
             </div>
-
-            <div v-if="geckoLoading" class="text-center py-8">
-              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p class="text-gray-400">Loading GeckoTerminal data...</p>
-            </div>
-
-            <div v-else-if="geckoError" class="text-center py-8">
-              <div class="text-red-400 mb-4">
-                <svg class="h-12 w-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p class="text-red-400">{{ geckoError }}</p>
-              <button @click="fetchGeckoData" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">Retry</button>
-            </div>
-
-            <div v-else-if="geckoData" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="tile"><div class="text-sm text-gray-400 mb-1">Current Price</div><div class="text-xl font-bold text-primary">${{ geckoData.price_usd }}</div></div>
-                <div class="tile"><div class="text-sm text-gray-400 mb-1">24h Change</div><div :class="['text-xl font-bold', geckoData.price_change_24h >= 0 ? 'text-green-400' : 'text-red-400']">{{ geckoData.price_change_24h >= 0 ? '+' : '' }}{{ geckoData.price_change_24h }}%</div></div>
-                <div class="tile"><div class="text-sm text-gray-400 mb-1">24h Volume</div><div class="text-xl font-bold">${{ formatNumber(geckoData.volume_24h) }}</div></div>
-                <div class="tile"><div class="text-sm text-gray-400 mb-1">Liquidity</div><div class="text-xl font-bold">${{ formatNumber(geckoData.reserve_usd) }}</div></div>
-              </div>
-              <div class="bg-gray-800 rounded-lg p-6">
-                <div class="text-center">
-                  <h4 class="text-lg font-semibold mb-4">Price Chart</h4>
-                  <div class="h-[600px] rounded-lg overflow-hidden">
-                    <iframe
-                      height="100%" width="100%" id="geckoterminal-embed" title="GeckoTerminal Embed"
-                      src="https://www.geckoterminal.com/id/xrpl/pools/4C41574153000000000000000000000000000000.rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC_XRP?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=15m"
-                      frameborder="0" allow="clipboard-write" allowfullscreen class="w-full h-full rounded-lg">
-                    </iframe>
-                  </div>
-                </div>
-              </div>
+            <div class="h-[600px] rounded-lg overflow-hidden">
+              <iframe
+                class="w-full h-full rounded-lg"
+                :src="dataSource === 'dexscreener'
+                  ? 'https://dexscreener.com/bsc/0xc281b7f97f0f9e545914ccc77dde064b8a5072ce?embed=1&chartTheme=dark&theme=dark&chartStyle=1'
+                  : 'https://www.geckoterminal.com/id/bsc/pools/0xb635ae14edd61f71dcd45761371e90e5e8268c254283f3125c4018ab99ec4fd3?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=15m'"
+                title="LAWAS BNB Chart"
+                style="border:0;"
+              ></iframe>
             </div>
           </div>
         </div>
@@ -231,7 +294,7 @@
               <div class="row"><span class="row__label">Network</span><span class="row__value">XRPL (Primary)</span></div>
               <div class="row"><span class="row__label">Total Supply</span><span class="row__value">{{ formatNumber(tokenData.total) }}</span></div>
               <div class="row"><span class="row__label">Circulating Supply</span><span class="row__value">{{ formatNumber(tokenData.circulating) }}</span></div>
-              <div class="row"><span class="row__label">Other Networks</span><span class="row__value">BSC • SOL • ARB • BASE • ETH • TON • SUI</span></div>
+              <div class="row"><span class="row__label">Other Networks</span><span class="row__value">BSC â€¢ SOL â€¢ ARB â€¢ BASE â€¢ ETH â€¢ TON â€¢ SUI</span></div>
             </div>
           </div>
 
@@ -400,13 +463,17 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useNuxtApp } from '#app'
 import PriceChart from '@/components/PriceChart.vue'
+const { $fetch } = useNuxtApp()
 
 /* ------ State ------ */
+const selectedAsset = ref('XRP') // XRP (XRPL), SOL, BNB
 const selectedCurrency = ref('USD')
 const selectedPeriod = ref('1D')
 const chartPeriods = ['1D', '1W', '1M', '1Y', 'ALL']
 const dataSource = ref('xpm')
+const sourceLabels = { xpm: 'XPM Market', dexscreener: 'Dexscreener', geckoterminal: 'GeckoTerminal' }
 
 /* ------ Token & Market ------ */
 const geckoData = ref(null)
@@ -442,13 +509,18 @@ const tokenAddresses = ref([
 const chartData = ref([])
 const currencyRates = ref({})
 const ohlcData = ref({ open: 0.00000125, high: 0.00000128, close: 0.00000126, low: 0.00000124 })
+const usdIdrRate = ref(0)
+const solPriceUsd = ref(null)
+const bnbPriceUsd = ref(null)
+const priceLoading = ref({ sol: false, bnb: false })
+const priceErrors = ref({ sol: null, bnb: null })
 
 /* ------ FAQs & Contact ------ */
 const faqs = ref([
   { question: 'What is LAWAS token?', answer: 'LAWAS token is a digital asset built on the XRP Ledger, designed for secure and efficient cross-border transactions. It aims to provide institutional-grade security and reliability.', open: false },
   { question: 'How can I buy LAWAS token?', answer: 'Create an XRP Ledger wallet, set a trustline to LAWAS, then purchase it on supported DEXs or through trusted liquidity providers.', open: false },
   { question: 'What are the use cases for LAWAS token?', answer: 'Trading fee discounts, governance voting, platform rewards, staking benefits, and access to premium features.', open: false },
-  { question: 'Is LAWAS token secure?', answer: 'LAWAS leverages XRPL security. Use secure wallets—hardware wallets recommended for enhanced security.', open: false }
+  { question: 'Is LAWAS token secure?', answer: 'LAWAS leverages XRPL security. Use secure walletsâ€”hardware wallets recommended for enhanced security.', open: false }
 ])
 const form = ref({ name: '', email: '', message: '' })
 
@@ -456,7 +528,25 @@ const form = ref({ name: '', email: '', message: '' })
 const marketCap    = computed(() => formatNumber(tokenData.value.marketcap))
 const holders      = computed(() => tokenData.value.holders)
 const trustlines   = computed(() => tokenData.value.trustlines)
-const currentPrice = computed(() => tokenData.value.priceUsd)
+const currentPrice = computed(() => {
+  if (selectedAsset.value === 'SOL') return solPriceUsd.value || 0
+  if (selectedAsset.value === 'BNB') return bnbPriceUsd.value || 0
+  return tokenData.value.priceUsd
+})
+const usdToIdr = computed(() => usdIdrRate.value || currencyRates.value['IDR'] || 0)
+const solPriceIdr = computed(() => toIdr(solPriceUsd.value))
+const bnbPriceIdr = computed(() => toIdr(bnbPriceUsd.value))
+const currentPriceDisplay = computed(() => {
+  const isIdr = selectedCurrency.value === 'IDR'
+  const rate = isIdr ? (currencyRates.value['IDR'] || 1) : 1
+  const prefix = isIdr ? 'Rp' : '$'
+  return `${prefix}${formatPrice(currentPrice.value * rate)}`
+})
+const assetLabel = computed(() => {
+  if (selectedAsset.value === 'SOL') return 'LAWAS SOL'
+  if (selectedAsset.value === 'BNB') return 'LAWAS BNB'
+  return 'LAWAS XRP'
+})
 
 const currencyItems = computed(() => {
   const currencies = ['IDR', 'EUR', 'JPY', 'GBP']
@@ -472,6 +562,10 @@ const marketStats = computed(() => ([
   { label: '24h Volume', value: `$${formatNumber(1250.45)}` },
   { label: 'All-Time High', value: `$${formatPrice(0.0000018)}` }
 ]))
+const availableSources = computed(() => {
+  if (selectedAsset.value === 'XRP') return ['xpm', 'dexscreener', 'geckoterminal']
+  return ['dexscreener', 'geckoterminal']
+})
 
 /* ------ Utils ------ */
 const getDotStyle = (index) => {
@@ -480,14 +574,22 @@ const getDotStyle = (index) => {
   const centerX = 50, centerY = 50
   const x = centerX + (radius * Math.cos(angle)) / 3.2
   const y = centerY + (radius * Math.sin(angle)) / 3.2
-  return { position: 'absolute', left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)', opacity: index % 2 === 0 ? 0.8 : 0.4, animation: `orbitPulse ${2 + (index * 0.1)}s ease-in-out infinite` }
+  return {
+    position: "absolute",
+    left: `${x}%`,
+    top: `${y}%`,
+    transform: "translate(-50%,-50%)",
+    opacity: index % 2 === 0 ? 0.8 : 0.4,
+    animation: `orbitPulse ${2 + (index * 0.1)}s ease-in-out infinite`
+  }
 }
-const formatNumber = (num) => { if (!Number.isFinite(Number(num))) return '0'; const n=Number(num); if (n>=1_000_000) return (n/1_000_000).toFixed(2)+'M'; if (n>=1_000) return (n/1_000).toFixed(2)+'K'; return n.toLocaleString() }
-const formatPrice = (v) => { const p=Number(v)||0; return p<0.000001 ? p.toFixed(10).replace(/\.?0+$/,'') : p.toFixed(8).replace(/\.?0+$/,'') }
-const shortAddress = (addr) => !addr ? '' : (addr.length>22 ? `${addr.slice(0,10)}…${addr.slice(-10)}` : addr)
-const copyToClipboard = async (text) => { try { await navigator.clipboard.writeText(text) ; console.log('[NOTIFY] Address copied') } catch { console.log('[NOTIFY] Copy failed') } }
+const formatNumber = (num) => { if (!Number.isFinite(Number(num))) return "0"; const n=Number(num); if (n>=1_000_000) return (n/1_000_000).toFixed(2)+"M"; if (n>=1_000) return (n/1_000).toFixed(2)+"K"; return n.toLocaleString() }
+const formatPrice = (v) => { const p=Number(v)||0; return p<0.000001 ? p.toFixed(10).replace(/\.?0+$/, "") : p.toFixed(8).replace(/\.?0+$/, "") }
+const formatIdr = (v) => { const n=Number(v); if (!Number.isFinite(n)) return "-"; return n.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
+const toIdr = (usd) => { const rate = usdToIdr.value || 0; if (!Number.isFinite(rate) || !Number.isFinite(usd)) return null; return usd * rate }
+const shortAddress = (addr) => { if (!addr) return ""; return addr.length > 22 ? `${addr.slice(0,10)}...${addr.slice(-10)}` : addr }
+const copyToClipboard = async (text) => { try { await navigator.clipboard.writeText(text); console.log('[NOTIFY] Address copied') } catch { console.log('[NOTIFY] Copy failed') } }
 const showNotificationMessage = (msg) => { console.log('[NOTIFY]', msg) }
-
 /* ------ Fetchers ------ */
 const fetchTokenData = async () => {
   try {
@@ -511,6 +613,79 @@ const fetchCurrencyRates = async () => {
   } catch (e) { console.error('Error fetching currency rates:', e) }
 }
 
+const fetchUsdToIdrRate = async () => {
+  try {
+    const r = await fetch('https://api.phantom.app/currency_exchange/v1/rates?from=USD&currencies=IDR')
+    const d = await r.json()
+    const rate = Number(d?.rates?.IDR)
+    if (Number.isFinite(rate)) usdIdrRate.value = rate
+  } catch (e) { console.error('Error fetching USD to IDR rate:', e) }
+}
+const fetchLawasSolPrice = async () => {
+  priceErrors.value.sol = null; priceLoading.value.sol = true
+  try {
+    // Coba lewat API lokal Nitro
+    const d = await $fetch('/api/lawas-sol')
+    const price = Number(d?.priceUsd)
+    if (Number.isFinite(price)) {
+      solPriceUsd.value = price
+      return
+    }
+    throw new Error('Harga SOL tidak valid dari API lokal')
+  } catch (e1) {
+    console.warn('Fallback fetch LAWAS SOL langsung MEXC', e1)
+    try {
+      const direct = await fetch('https://www.mexc.fm/api/dex/v1/data/get_market_info?chain_id=100000&pair_ca=CXHDQoQPRwLrR3ShqPbgBemhKpmAhkhHBCuQxmKbN2uP&token_ca=G32DYT2PpDsq5t8RLPVHMagtBKYAa2DSohFhkSjJs7C6')
+      const d = await direct.json()
+      const price = Number(d?.data?.token_price)
+      if (Number.isFinite(price)) {
+        solPriceUsd.value = price
+        return
+      }
+      throw new Error('Harga SOL tidak valid dari MEXC')
+    } catch (e2) {
+      // Fallback terakhir: tampilkan harga terakhir yang diketahui agar UI tidak kosong
+      const lastKnown = 0.00004035995710328147
+      solPriceUsd.value = lastKnown
+      priceErrors.value.sol = e2?.message || 'Gagal memuat harga LAWAS SOL (memakai harga cadangan)'
+      console.error('Error fetching LAWAS SOL price:', e2)
+    }
+  } finally { priceLoading.value.sol = false }
+}
+const fetchLawasBnbPrice = async () => {
+  priceErrors.value.bnb = null; priceLoading.value.bnb = true
+  try {
+    // Coba lewat API lokal Nitro
+    const d = await $fetch('/api/lawas-bnb')
+    const candidate = Number(d?.priceUsd)
+    if (Number.isFinite(candidate)) {
+      bnbPriceUsd.value = candidate
+      return
+    }
+    throw new Error('Harga BNB tidak valid dari API lokal')
+  } catch (e1) {
+    console.warn('Fallback fetch LAWAS BNB langsung Dexscreener', e1)
+    try {
+      const res = await fetch('https://api.dexscreener.com/latest/dex/tokens/0xc6e6b78A08613768572255BC859204542346b879')
+      const d = await res.json()
+      const pairs = Array.isArray(d?.pairs) ? d.pairs : []
+      const best = pairs
+        .map(p => ({ price: Number(p?.priceUsd), liq: Number(p?.liquidity?.usd || 0) }))
+        .sort((a, b) => (b.liq || 0) - (a.liq || 0))[0]
+      if (best && Number.isFinite(best.price)) {
+        bnbPriceUsd.value = best.price
+        return
+      }
+      throw new Error('Harga BNB tidak valid dari Dexscreener')
+    } catch (e2) {
+      // Fallback terakhir: harga cadangan agar UI tetap terisi
+      const lastKnown = 0.00006604
+      bnbPriceUsd.value = lastKnown
+      priceErrors.value.bnb = e2?.message || 'Gagal memuat harga LAWAS BNB (memakai harga cadangan)'
+      console.error('Error fetching LAWAS BNB price:', e2)
+    }
+  } finally { priceLoading.value.bnb = false }
+}
 /* ------ Actions ------ */
 const setSelectedPeriod = (period) => {
   let param = period
@@ -533,12 +708,36 @@ const fetchGeckoData = async () => {
 const redirectToXPM = () => window.open('https://xpmarket.com/token/LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC','_blank')
 const toggleFaq = (i) => { faqs.value[i].open = !faqs.value[i].open }
 watch(selectedCurrency, () => {})
+watch(selectedAsset, async (val) => {
+  // pastikan dataSource valid untuk aset terpilih
+  if (!availableSources.value.includes(dataSource.value)) {
+    dataSource.value = availableSources.value[0]
+  }
+  if (val === 'SOL') await fetchLawasSolPrice()
+  if (val === 'BNB') await fetchLawasBnbPrice()
+  if (val === 'XRP') {
+    await fetchTokenData()
+    await fetchChartData(selectedPeriod.value.toLowerCase())
+  }
+})
 
 /* ------ Lifecycle ------ */
 let intId = null
 onMounted(async () => {
-  await fetchTokenData(); await fetchChartData(selectedPeriod.value.toLowerCase()); await fetchCurrencyRates()
-  intId = setInterval(async () => { await fetchTokenData(); await fetchChartData(selectedPeriod.value.toLowerCase()) }, 60000)
+  await fetchTokenData()
+  await fetchChartData(selectedPeriod.value.toLowerCase())
+  await fetchCurrencyRates()
+  await fetchUsdToIdrRate()
+  await Promise.all([fetchLawasSolPrice(), fetchLawasBnbPrice()])
+
+  intId = setInterval(async () => {
+    await fetchTokenData()
+    await fetchChartData(selectedPeriod.value.toLowerCase())
+    await fetchUsdToIdrRate()
+    fetchLawasSolPrice()
+    fetchLawasBnbPrice()
+  }, 60000)
+
   document.querySelectorAll('.animate-number').forEach(el => el.classList.add('number-animation'))
 })
 onUnmounted(() => { if (intId) clearInterval(intId) })
@@ -582,3 +781,5 @@ onUnmounted(() => { if (intId) clearInterval(intId) })
 @keyframes orbitRotation{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
 @keyframes orbitPulse{ 0%,100%{ transform:translate(-50%,-50%) scale(1); opacity:.6 } 50%{ transform:translate(-50%,-50%) scale(1.2); opacity:1 } }
 </style>
+
+
