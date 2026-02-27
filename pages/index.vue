@@ -593,22 +593,19 @@ const showNotificationMessage = (msg) => { console.log('[NOTIFY]', msg) }
 /* ------ Fetchers ------ */
 const fetchTokenData = async () => {
   try {
-    const r = await fetch('https://api.xpmarket.com/api/currency/widget?token=LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC')
-    const d = await r.json()
+    const d = await $fetch('/api/xpmarket/token')
     if (d.success) tokenData.value = { ...tokenData.value, ...d.data, priceUsd: Number(d.data.priceUsd) }
   } catch (e) { console.error('Error fetching token data:', e) }
 }
 const fetchChartData = async (period='1d') => {
   try {
-    const r = await fetch(`https://api.xpmarket.com/api/currency/LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC/prices/${period}`)
-    const d = await r.json()
+    const d = await $fetch('/api/xpmarket/chart', { query: { period } })
     if (d.success) chartData.value = d.data.map(it => ({ x: it.x, y: Number(it.y) }))
   } catch (e) { console.error('Error fetching chart data:', e) }
 }
 const fetchCurrencyRates = async () => {
   try {
-    const r = await fetch('https://api.xpmarket.com/api/stats/main')
-    const d = await r.json()
+    const d = await $fetch('/api/xpmarket/rates')
     if (d.success) { const rates={}; d.rates.forEach(rt => rates[rt.iso]=parseFloat(rt.rate)); currencyRates.value=rates }
   } catch (e) { console.error('Error fetching currency rates:', e) }
 }
