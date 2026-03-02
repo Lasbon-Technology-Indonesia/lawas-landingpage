@@ -448,16 +448,6 @@
       </div>
     </section>
 
-    <!-- ============================== FOOTER ============================== -->
-    <footer class="bg-dark-lighter py-8 text-center text-gray-400">
-      <div class="container mx-auto px-4">
-        <p>&copy; 2024 LAWAS. All rights reserved.</p>
-        <div class="flex justify-center space-x-4 mt-4">
-          <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -595,15 +585,17 @@ const fetchTokenData = async () => {
   try {
     // const r = await fetch('https://api.xpmarket.com/api/currency/widget?token=LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC')
     // const d = await r.json()
-    const d = await fetch('https://lawas.co/api/xpmarket/token')
-    if (d.success) tokenData.value = { ...tokenData.value, ...d.data, priceUsd: Number(d.data.priceUsd) }
+    const r = await fetch('https://lawas.co/api/xpmarket/token')
+    const d = await r.json()
+    tokenData.value = { ...tokenData.value, ...d.data, priceUsd: Number(d.data.priceUsd) }
   } catch (e) { console.error('Error fetching token data:', e) }
 }
 const fetchChartData = async (period='1d') => {
   try {
     // const r = await fetch(`https://api.xpmarket.com/api/currency/LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC/prices/${period}`)
     // const d = await r.json()
-    const d = await fetch(`https://lawas.co/api/xpmarket/chart?period=${period}`)
+    const r = await fetch(`https://lawas.co/api/xpmarket/chart?period=${period}`)
+    const d = await r.json()
     if (d.success) chartData.value = d.data.map(it => ({ x: it.x, y: Number(it.y) }))
   } catch (e) { console.error('Error fetching chart data:', e) }
 }
@@ -611,8 +603,13 @@ const fetchCurrencyRates = async () => {
   try {
     // const r = await fetch('https://api.xpmarket.com/api/stats/main')
     // const d = await r.json()
-    const d = await fetch('https://lawas.co/api/xpmarket/rates')
-    if (d.success) { const rates={}; d.rates.forEach(rt => rates[rt.iso]=parseFloat(rt.rate)); currencyRates.value=rates }
+    const r = await fetch('https://lawas.co/api/xpmarket/rates')
+    const d = await r.json()
+    if (d) { 
+      const rates = {};
+      d.rates.forEach(rt => rates[rt.iso]=parseFloat(rt.rate));
+      currencyRates.value = rates;
+    }
   } catch (e) { console.error('Error fetching currency rates:', e) }
 }
 
@@ -628,7 +625,8 @@ const fetchLawasSolPrice = async () => {
   priceErrors.value.sol = null; priceLoading.value.sol = true
   try {
     // Coba lewat API lokal Nitro
-    const d = await fetch('https://lawas.co/api/lawas-sol')
+    const r = await fetch('https://lawas.co/api/lawas-sol')
+    const d = await r.json()
     const price = Number(d?.priceUsd)
     if (Number.isFinite(price)) {
       solPriceUsd.value = price
@@ -659,7 +657,8 @@ const fetchLawasBnbPrice = async () => {
   priceErrors.value.bnb = null; priceLoading.value.bnb = true
   try {
     // Coba lewat API lokal Nitro
-    const d = await fetch('https://lawas.co/api/lawas-bnb')
+    const r = await fetch('https://lawas.co/api/lawas-bnb')
+    const d = await r.json()
     const candidate = Number(d?.priceUsd)
     if (Number.isFinite(candidate)) {
       bnbPriceUsd.value = candidate
