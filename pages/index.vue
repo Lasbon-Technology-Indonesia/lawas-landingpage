@@ -628,7 +628,7 @@ const fetchLawasSolPrice = async () => {
   priceErrors.value.sol = null; priceLoading.value.sol = true
   try {
     // Coba lewat API lokal Nitro
-    const d = await $fetch('/api/lawas-sol')
+    const d = await fetch('https://lawas.co/api/lawas-sol')
     const price = Number(d?.priceUsd)
     if (Number.isFinite(price)) {
       solPriceUsd.value = price
@@ -659,7 +659,7 @@ const fetchLawasBnbPrice = async () => {
   priceErrors.value.bnb = null; priceLoading.value.bnb = true
   try {
     // Coba lewat API lokal Nitro
-    const d = await $fetch('/api/lawas-bnb')
+    const d = await fetch('https://lawas.co/api/lawas-bnb')
     const candidate = Number(d?.priceUsd)
     if (Number.isFinite(candidate)) {
       bnbPriceUsd.value = candidate
