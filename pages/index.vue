@@ -585,7 +585,7 @@ const fetchTokenData = async () => {
   try {
     // const r = await fetch('https://api.xpmarket.com/api/currency/widget?token=LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC')
     // const d = await r.json()
-    const r = await fetch('https://lawas.co/api/xpmarket/token')
+    const r = await fetch('/api/xpmarket/token')
     const d = await r.json()
     tokenData.value = { ...tokenData.value, ...d.data, priceUsd: Number(d.data.priceUsd) }
   } catch (e) { console.error('Error fetching token data:', e) }
@@ -594,7 +594,7 @@ const fetchChartData = async (period='1d') => {
   try {
     // const r = await fetch(`https://api.xpmarket.com/api/currency/LAWAS-rfAWYnEAkQGAhbESWAMdNccWJvdcrgugMC/prices/${period}`)
     // const d = await r.json()
-    const r = await fetch(`https://lawas.co/api/xpmarket/chart?period=${period}`)
+    const r = await fetch(`/api/xpmarket/chart?period=${period}`)
     const d = await r.json()
     if (d.success) chartData.value = d.data.map(it => ({ x: it.x, y: Number(it.y) }))
   } catch (e) { console.error('Error fetching chart data:', e) }
@@ -603,7 +603,7 @@ const fetchCurrencyRates = async () => {
   try {
     // const r = await fetch('https://api.xpmarket.com/api/stats/main')
     // const d = await r.json()
-    const r = await fetch('https://lawas.co/api/xpmarket/rates')
+    const r = await fetch('/api/xpmarket/rates')
     const d = await r.json()
     if (d) { 
       const rates = {};
@@ -625,7 +625,7 @@ const fetchLawasSolPrice = async () => {
   priceErrors.value.sol = null; priceLoading.value.sol = true
   try {
     // Coba lewat API lokal Nitro
-    const r = await fetch('https://lawas.co/api/lawas-sol')
+    const r = await fetch('/api/lawas-sol')
     const d = await r.json()
     const price = Number(d?.priceUsd)
     if (Number.isFinite(price)) {
@@ -657,7 +657,7 @@ const fetchLawasBnbPrice = async () => {
   priceErrors.value.bnb = null; priceLoading.value.bnb = true
   try {
     // Coba lewat API lokal Nitro
-    const r = await fetch('https://lawas.co/api/lawas-bnb')
+    const r = await fetch('/api/lawas-bnb')
     const d = await r.json()
     const candidate = Number(d?.priceUsd)
     if (Number.isFinite(candidate)) {
